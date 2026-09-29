@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tomar Asistencia</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Tomar Asistencia</h1>
+    <nav><a href="index.html">Inicio</a><a href="registro.html">Registro</a><a href="historial.html">Historial</a></nav>
+  </header>
+
+  <div class="card">
+    <div class="form-group"><label for="cursoAsistencia">Curso:</label><select id="cursoAsistencia"></select></div>
+    <div class="form-group">
+      <label for="modo">Método:</label>
+      <select id="modo">
+        <option value="qr">📱 Código QR (principal)</option>
+        <option value="rostro">🙂 Reconocimiento facial</option>
+      </select>
+    </div>
+    <button id="iniciar" class="btn-verde">Iniciar</button>
+    <button id="detener" class="btn-gris" disabled>Detener</button>
+  </div>
+
+  <div class="camera-section">
+    <div class="video-box"><video id="video" muted playsinline></video></div>
+    <canvas id="canvas" style="display:none"></canvas>
+    <div id="estado" class="info">Selecciona un curso y presiona Iniciar</div>
+  </div>
+
+  <div class="asistencia-resultados">
+    <h2>Asistencia de hoy</h2>
+    <div id="lista"></div>
+  </div>
+</div>
+
+<script src="js/jsQR.js"></script>
+<script src="js/face-api.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/asistencia.js"></script>
+</body>
+</html>

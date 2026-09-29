@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Asistencia</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Historial de Asistencia</h1>
+    <nav><a href="index.html">Inicio</a><a href="registro.html">Registro</a><a href="asistencia.html">Tomar Asistencia</a></nav>
+  </header>
+
+  <div class="filtros">
+    <div><label for="filtroCurso">Curso:</label><select id="filtroCurso"></select></div>
+    <div><label for="filtroFecha">Fecha:</label><input type="date" id="filtroFecha"></div>
+    <div><label for="filtroEstudiante">Estudiante:</label><input id="filtroEstudiante" placeholder="Código o nombre"></div>
+    <div>
+      <button id="aplicarFiltros">Filtrar</button>
+      <button id="exportarBtn" class="btn-verde">CSV</button>
+      <button id="borrarBtn" class="btn-rojo">Borrar todo</button>
+    </div>
+  </div>
+
+  <div class="historial-container">
+    <h2>Registros</h2>
+    <div id="tablaHistorial" style="overflow-x:auto"></div>
+  </div>
+</div>
+<script src="js/db.js"></script>
+<script src="js/historial.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Asistencia - I.E.S. N° 11</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Sistema de Asistencia por QR</h1>
+    <p>Instituto de Educación Superior N° 11 - JUJUY</p>
+  </header>
+
+  <img src="portada.jpg" alt="Portada" onerror="this.style.display='none'"
+       style="display:block;margin:0 auto 16px;max-width:100%;height:auto;border-radius:8px">
+
+  <div class="menu-grid">
+    <a class="menu-card" href="registro.html"><div class="icon">👤</div><h2>Registro de Estudiantes</h2><p>Registra estudiantes y genera su QR personal</p></a>
+    <a class="menu-card" href="asistencia.html"><div class="icon">📷</div><h2>Tomar Asistencia</h2><p>Escanea el QR (o usa reconocimiento facial)</p></a>
+    <a class="menu-card" href="historial.html"><div class="icon">📊</div><h2>Historial</h2><p>Consulta y exporta las asistencias</p></a>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <h3>🛠️ Respaldo de datos</h3>
+    <button class="btn-verde" onclick="exportarDatos()">📥 Exportar datos</button>
+    <input type="file" id="importFile" accept=".json" onchange="importarDatos(event)" style="display:none">
+    <button class="btn-gris" onclick="$('importFile').click()">📤 Importar datos</button>
+  </div>
+
+  <footer>&copy; 2026 I.E.S. N° 11 - JUJUY -</footer>
+</div>
+<script src="js/db.js"></script>
+</body>
+</html>
