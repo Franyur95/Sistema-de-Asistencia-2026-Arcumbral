@@ -10,14 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
   cargar();
 });
 
-const diaDe = a => a.dia || a.fecha.slice(0, 10);
+const diaDe = a => a?.dia || (typeof a?.fecha === 'string' ? a.fecha.slice(0, 10) : '');
+const fechaValida = a => a && typeof a.fecha === 'string' && !Number.isNaN(Date.parse(a.fecha));
 
 function cargar() {
   const c = $('filtroCurso').value, f = $('filtroFecha').value;
   const t = $('filtroEstudiante').value.toLowerCase().trim();
   actual = DB.asistencias()
+    .filter(a => fechaValida(a))
     .filter(a => (!c || a.curso === c) && (!f || diaDe(a) === f) &&
-      (!t || a.codigo.toLowerCase().includes(t) || a.nombre.toLowerCase().includes(t)))
+      (!t || String(a.codigo ?? '').toLowerCase().includes(t) || String(a.nombre ?? '').toLowerCase().includes(t)))
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
   if (!actual.length) { $('tablaHistorial').innerHTML = '<p>No hay registros.</p>'; return; }

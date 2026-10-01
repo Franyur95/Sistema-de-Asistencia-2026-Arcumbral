@@ -1,5 +1,6 @@
 let stream = null;
 let descriptor = null;
+let modelosRegistroOK = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   llenarCursos('curso', 'Seleccione un curso');
@@ -19,7 +20,7 @@ async function activarCamara() {
   try {
     $('activarCamara').disabled = true;
     $('faceMsg').textContent = 'Cargando modelos...';
-    await cargarModelos();
+    if (!modelosRegistroOK) { await cargarModelos(); modelosRegistroOK = true; }
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
     $('video').srcObject = stream;
     await $('video').play();
@@ -42,16 +43,20 @@ async function capturar() {
 function registrar(ev) {
   ev.preventDefault();
   const codigo = $('codigo').value.trim();
+  const nombre = $('nombre').value.trim();
+  const email = $('email').value.trim();
+  const curso = $('curso').value;
+  if (!codigo || !nombre || !curso) return alert('Completa código, nombre y curso.');
   const est = {
     codigo,
-    nombre: $('nombre').value.trim(),
-    email: $('email').value.trim(),
-    curso: $('curso').value,
+    nombre,
+    email,
+    curso,
     descriptor,
     fechaRegistro: new Date().toISOString()
   };
   const lista = DB.estudiantes();
-  if (lista.some(e => e.codigo === codigo)) return alert('Ya existe un estudiante con ese código.');
+  if (lista.some(e => String(e.codigo).trim().toLowerCase() === codigo.toLowerCase())) return alert('Ya existe un estudiante con ese código.');
   lista.push(est);
   DB.guardar('estudiantes', lista);
   $('registroForm').reset();

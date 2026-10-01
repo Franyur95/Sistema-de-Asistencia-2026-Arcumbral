@@ -35,7 +35,8 @@ async function iniciar() {
 
 function detener() {
   activo = false;
-  clearInterval(faceTimer);
+  if (faceTimer) { clearInterval(faceTimer); faceTimer = null; }
+  matcher = null;
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
   $('iniciar').disabled = false; $('detener').disabled = true;
   $('cursoAsistencia').disabled = false; $('modo').disabled = false;
@@ -61,10 +62,11 @@ function bucleQR() {
 async function iniciarRostro() {
   mostrar('info', 'Cargando modelos...');
   if (!modelosOK) { await cargarModelos(); modelosOK = true; }
+  const curso = $('cursoAsistencia').value;
   const etiquetas = DB.estudiantes()
-    .filter(e => e.descriptor || e.faceDescriptor)
+    .filter(e => e.curso === curso && (e.descriptor || e.faceDescriptor))
     .map(e => new faceapi.LabeledFaceDescriptors(e.codigo, [new Float32Array(e.descriptor || e.faceDescriptor)]));
-  if (!etiquetas.length) throw new Error('Ningún estudiante tiene rostro registrado.');
+  if (!etiquetas.length) throw new Error('Ningún estudiante de este curso tiene rostro registrado.');
   matcher = new faceapi.FaceMatcher(etiquetas, 0.5);
   mostrar('info', '🙂 Mira a la cámara');
   faceTimer = setInterval(async () => {
@@ -83,9 +85,14 @@ function procesar(codigo) {
   if (ultimo[codigo] && Date.now() - ultimo[codigo] < 4000) return; // evita repetidos
   ultimo[codigo] = Date.now();
   const est = DB.estudiantes().find(e => e.codigo === codigo);
-  if (!est) return mostrar('err', '❌ QR no registrado en el sistema');
+  if (!est) return mostrar('err', '❌ Estudiante no registrado en el sistema');
 
-  const curso = $('cursoAsistencia').value, dia = hoy();
+  const curso = $('cursoAsistencia').value;
+  if (est.curso !== curso) {
+    return mostrar('warn', `⚠️ ${esc(est.nombre)} pertenece a ${esc(CURSOS[est.curso] || est.curso)}, no a ${esc(CURSOS[curso] || curso)}`);
+  }
+
+  const dia = hoy();
   const as = DB.asistencias();
   if (as.some(a => a.codigo === codigo && a.curso === curso && a.dia === dia))
     return mostrar('warn', `⚠️ ${esc(est.nombre)} ya está registrado hoy`);

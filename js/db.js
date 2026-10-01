@@ -64,12 +64,36 @@ function importarDatos(ev) {
   r.onload = e => {
     try {
       const d = JSON.parse(e.target.result);
-      const p = v => typeof v === 'string' ? JSON.parse(v) : v;
-      if (d.estudiantes) DB.guardar('estudiantes', p(d.estudiantes));
-      if (d.asistencias) DB.guardar('asistencias', p(d.asistencias));
+      const parse = v => {
+        if (typeof v === 'string') v = JSON.parse(v);
+        return v;
+      };
+      const estudiantes = parse(d.estudiantes ?? []);
+      const asistencias = parse(d.asistencias ?? []);
+      if (!Array.isArray(estudiantes) || !Array.isArray(asistencias)) {
+        throw new Error('estudiantes y asistencias deben ser listas.');
+      }
+      const estudiantesValidos = estudiantes.every(e => e && typeof e === 'object' &&
+        typeof e.codigo === 'string' && e.codigo.trim() &&
+        typeof e.nombre === 'string' && e.nombre.trim() &&
+        typeof e.curso === 'string' && CURSOS[e.curso]);
+      const asistenciasValidas = asistencias.every(a => a && typeof a === 'object' &&
+        typeof a.codigo === 'string' && a.codigo.trim() &&
+        typeof a.nombre === 'string' && a.nombre.trim() &&
+        typeof a.curso === 'string' && CURSOS[a.curso] &&
+        typeof a.fecha === 'string' && !Number.isNaN(Date.parse(a.fecha)));
+      if (!estudiantesValidos) throw new Error('Hay estudiantes con datos obligatorios inválidos.');
+      if (!asistenciasValidas) throw new Error('Hay asistencias con datos obligatorios inválidos.');
+      if (estudiantes.some((e, i) => estudiantes.findIndex(x => x.codigo === e.codigo) !== i)) {
+        throw new Error('Hay códigos de estudiantes duplicados.');
+      }
+      if (!confirm('La importación reemplazará los datos actuales. ¿Continuar?')) return;
+      DB.guardar('estudiantes', estudiantes);
+      DB.guardar('asistencias', asistencias);
       alert('Datos importados correctamente.');
       location.reload();
     } catch (err) { alert('Archivo inválido: ' + err.message); }
+    finally { ev.target.value = ''; }
   };
   r.readAsText(file);
 }
