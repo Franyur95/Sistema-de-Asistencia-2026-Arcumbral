@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materias</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .fila-horario{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
+    @media(max-width:600px){.fila-horario{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Materias</h1>
+    <nav><a href="index.html">Inicio</a><a href="cursos.html">Cursos</a><a href="profesores.html">Profesores</a><a href="registro.html">Registro</a><a href="asistencia.html">Tomar Asistencia</a><a href="historial.html">Historial</a></nav>
+  </header>
+
+  <div class="form-container">
+    <h2 id="tituloForm">Nueva materia</h2>
+    <form id="materiaForm">
+      <div class="form-group">
+        <label for="nombre">Nombre de la materia:</label>
+        <input id="nombre" required>
+      </div>
+      <div class="form-group">
+        <label for="cursoId">Curso:</label>
+        <select id="cursoId" required></select>
+      </div>
+      <div class="form-group">
+        <label for="profesorId">Profesor:</label>
+        <select id="profesorId"></select>
+      </div>
+
+      <div class="form-group">
+        <label>Días y horarios de cursada:</label>
+        <div id="horarios"></div>
+        <button type="button" id="agregarHorario" class="btn-gris">+ Agregar horario</button>
+      </div>
+
+      <button type="submit" id="guardarBtn">Guardar materia</button>
+      <button type="button" id="cancelarBtn" class="btn-gris" style="display:none">Cancelar edición</button>
+    </form>
+  </div>
+
+  <div class="estudiantes-registrados">
+    <h2>Materias cargadas</h2>
+    <div id="listaMaterias"></div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/materias.js"></script>
+</body>
+</html>

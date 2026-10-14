@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profesores</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Profesores</h1>
+    <nav><a href="index.html">Inicio</a><a href="cursos.html">Cursos</a><a href="registro.html">Registro</a><a href="asistencia.html">Tomar Asistencia</a><a href="historial.html">Historial</a></nav>
+  </header>
+
+  <div class="form-container">
+    <h2 id="tituloForm">Nuevo profesor</h2>
+    <form id="profForm">
+      <div class="form-group">
+        <label for="dni">DNI:</label>
+        <input id="dni" inputmode="numeric" maxlength="9" placeholder="Solo números" required>
+      </div>
+      <div class="form-group">
+        <label for="nombre">Nombre completo:</label>
+        <input id="nombre" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+      </div>
+      <button type="submit" id="guardarBtn">Guardar profesor</button>
+      <button type="button" id="cancelarBtn" class="btn-gris" style="display:none">Cancelar edición</button>
+    </form>
+  </div>
+
+  <div class="estudiantes-registrados">
+    <h2>Profesores cargados</h2>
+    <div id="listaProfesores"></div>
+  </div>
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/profesores.js"></script>
+</body>
+</html>
