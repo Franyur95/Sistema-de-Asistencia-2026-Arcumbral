@@ -1,44 +1,46 @@
 let actual = [];
 
-document.addEventListener('DOMContentLoaded', () => {
-  llenarCursos('filtroCurso', 'Todos los cursos');
+document.addEventListener('DOMContentLoaded', async () => {
+  await iniciarPagina(['admin', 'profesor']);
+  const [cursos, materias] = await Promise.all([DB.listar('cursos'), DB.listar('materias')]);
+  $('filtroMateria').innerHTML = '<option value="">Todas las materias</option>' + materias.map(m => {
+    const c = cursos.find(x => String(x.id) === String(m.curso_id));
+    return `<option value="${esc(m.id)}">${esc(m.nombre)}${c ? ' (' + esc(etiquetaCurso(c)) + ')' : ''}</option>`;
+  }).join('');
+  $('desde').value = hoy().slice(0, 8) + '01';
+  $('hasta').value = hoy();
   $('aplicarFiltros').onclick = cargar;
   $('exportarBtn').onclick = exportarCSV;
-  $('borrarBtn').onclick = () => {
-    if (confirm('¿Borrar TODO el historial de asistencias?')) { DB.guardar('asistencias', []); cargar(); }
-  };
+  $('pdfBtn').onclick = descargarPDF;
   cargar();
 });
 
-const diaDe = a => a?.dia || (typeof a?.fecha === 'string' ? a.fecha.slice(0, 10) : '');
-const fechaValida = a => a && typeof a.fecha === 'string' && !Number.isNaN(Date.parse(a.fecha));
-
-function cargar() {
-  const c = $('filtroCurso').value, f = $('filtroFecha').value;
-  const t = $('filtroEstudiante').value.toLowerCase().trim();
-  actual = DB.asistencias()
-    .filter(a => fechaValida(a))
-    .filter(a => (!c || a.curso === c) && (!f || diaDe(a) === f) &&
-      (!t || String(a.codigo ?? '').toLowerCase().includes(t) || String(a.nombre ?? '').toLowerCase().includes(t)))
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
+async function cargar() {
+  const p = new URLSearchParams({ accion: 'historial', materia_id: $('filtroMateria').value, desde: $('desde').value,
+                                  hasta: $('hasta').value, q: $('filtroEstudiante').value.trim() });
+  try { actual = await api('api/asistencia.php?' + p); } catch (e) { return alert(e.message); }
   if (!actual.length) { $('tablaHistorial').innerHTML = '<p>No hay registros.</p>'; return; }
   $('tablaHistorial').innerHTML = `<table>
-    <thead><tr><th>Fecha</th><th>Hora</th><th>Código</th><th>Nombre</th><th>Curso</th><th>Método</th></tr></thead>
+    <thead><tr><th>Fecha</th><th>Hora</th><th>Código</th><th>Nombre</th><th>Materia</th><th>Método</th></tr></thead>
     <tbody>${actual.map(a => {
-      const d = new Date(a.fecha);
+      const d = new Date(a.fecha.replace(' ', 'T'));
       return `<tr><td>${d.toLocaleDateString('es-AR')}</td><td>${d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}</td>
-      <td>${esc(a.codigo)}</td><td>${esc(a.nombre)}</td><td>${esc(CURSOS[a.curso] || a.curso)}</td><td>${esc(a.metodo || '-')}</td></tr>`;
+      <td>${esc(a.codigo)}</td><td>${esc(a.nombre)}</td><td>${esc(a.materia)}</td><td>${esc(a.metodo)}</td></tr>`;
     }).join('')}</tbody></table>`;
+}
+
+function descargarPDF() {
+  if (!$('filtroMateria').value) return alert('Elegí una materia para generar el PDF.');
+  location.href = `api/informe_pdf.php?materia_id=${$('filtroMateria').value}&desde=${$('desde').value}&hasta=${$('hasta').value}`;
 }
 
 function exportarCSV() {
   if (!actual.length) return alert('No hay datos para exportar.');
   const q = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-  let csv = 'Fecha,Hora,Código,Nombre,Curso,Método\n';
+  let csv = 'Fecha,Hora,Código,Nombre,Materia,Método\n';
   actual.forEach(a => {
-    const d = new Date(a.fecha);
-    csv += [d.toLocaleDateString('es-AR'), d.toLocaleTimeString('es-AR'), a.codigo, a.nombre, CURSOS[a.curso] || a.curso, a.metodo || '-'].map(q).join(',') + '\n';
+    const d = new Date(a.fecha.replace(' ', 'T'));
+    csv += [d.toLocaleDateString('es-AR'), d.toLocaleTimeString('es-AR'), a.codigo, a.nombre, a.materia, a.metodo].map(q).join(',') + '\n';
   });
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const l = document.createElement('a');

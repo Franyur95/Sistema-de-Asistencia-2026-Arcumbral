@@ -31,3 +31,7 @@ th{background:#f1f3f6}
 .filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
 footer{text-align:center;color:#7f8c8d;padding:10px}
 @media print{body *{visibility:hidden}#qrResultado,#qrResultado *{visibility:visible}#qrResultado{position:absolute;left:0;top:0}#qrResultado button,#qrResultado a{display:none}}
+
+.hidden{display:none!important}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.85em;font-weight:600;background:#e2e3e5}
+.badge.ok{background:#d4edda;color:#155724}.badge.err{background:#f8d7da;color:#721c24}

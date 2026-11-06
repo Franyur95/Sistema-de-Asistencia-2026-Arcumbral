@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajustes</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <header><h1>Ajustes</h1><nav id="nav"></nav></header>
+
+  <div class="card">
+    <h3>📶 Red del instituto (WiFi por IP)</h3>
+    <p>Tu IP pública actual: <strong id="ipActual">...</strong></p>
+    <p><small>Para que sea la del instituto, abrí esta página conectado al WiFi del instituto y presioná "Agregar mi IP actual".</small></p>
+    <label for="ips">IPs permitidas (separadas por coma; podés usar prefijo con * al final):</label>
+    <textarea id="ips" rows="2" style="width:100%"></textarea>
+    <button id="agregarIp" class="btn-gris">Agregar mi IP actual</button>
+    <button id="guardarIps">Guardar</button>
+  </div>
+
+  <div class="card">
+    <h3>🤖 Token del agente WiFi</h3>
+    <input id="token" readonly>
+    <button id="nuevoToken" class="btn-rojo">Generar nuevo token</button>
+  </div>
+</div>
+<script src="js/db.js"></script>
+<script src="js/ajustes.js"></script>
+</body>
+</html>

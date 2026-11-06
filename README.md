@@ -15,7 +15,5 @@ Sistema desarrollado para institutos superiores que permite registrar la asisten
 * HTML5
 * CSS3
 * JavaScript (ES6+)
-* Face-API.js para reconocimiento facial
-* LocalStorage como base de datos
 
 ## Estructura del Proyecto
