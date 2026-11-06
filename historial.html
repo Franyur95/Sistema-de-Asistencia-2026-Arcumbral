@@ -8,19 +8,17 @@
 </head>
 <body>
 <div class="container">
-  <header>
-    <h1>Historial de Asistencia</h1>
-    <nav><a href="index.html">Inicio</a><a href="registro.html">Registro</a><a href="asistencia.html">Tomar Asistencia</a></nav>
-  </header>
+  <header><h1>Historial de Asistencia</h1><nav id="nav"></nav></header>
 
   <div class="filtros">
-    <div><label for="filtroCurso">Curso:</label><select id="filtroCurso"></select></div>
-    <div><label for="filtroFecha">Fecha:</label><input type="date" id="filtroFecha"></div>
+    <div><label for="filtroMateria">Materia:</label><select id="filtroMateria"></select></div>
+    <div><label for="desde">Desde:</label><input type="date" id="desde"></div>
+    <div><label for="hasta">Hasta:</label><input type="date" id="hasta"></div>
     <div><label for="filtroEstudiante">Estudiante:</label><input id="filtroEstudiante" placeholder="Código o nombre"></div>
     <div>
       <button id="aplicarFiltros">Filtrar</button>
       <button id="exportarBtn" class="btn-verde">CSV</button>
-      <button id="borrarBtn" class="btn-rojo">Borrar todo</button>
+      <button id="pdfBtn" class="btn-rojo">PDF</button>
     </div>
   </div>
 

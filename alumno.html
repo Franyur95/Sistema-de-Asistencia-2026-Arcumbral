@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi asistencia</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+  <header><h1>Mi asistencia</h1><nav id="nav"></nav></header>
+
+  <div class="card">
+    <h2 id="saludo"></h2>
+    <p>Red del instituto: <span id="redEstado" class="badge">...</span></p>
+    <p>Clase en este momento: <strong id="claseActual">-</strong></p>
+    <p>Mi dispositivo WiFi: <span id="macEstado"></span></p>
+    <button id="marcarBtn" class="btn-verde">📶 Marcar presente por WiFi</button>
+  </div>
+
+  <div class="card">
+    <h3>Resumen por materia</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+      <div><label for="desde">Desde:</label><input type="date" id="desde"></div>
+      <div><label for="hasta">Hasta:</label><input type="date" id="hasta"></div>
+      <button id="pdfBtn" class="btn-rojo">PDF</button>
+    </div>
+    <div id="resumen" style="overflow-x:auto"></div>
+  </div>
+
+  <div class="card"><h3>Últimas asistencias</h3><div id="ultimos"></div></div>
+</div>
+<script src="js/db.js"></script>
+<script src="js/alumno.js"></script>
+</body>
+</html>

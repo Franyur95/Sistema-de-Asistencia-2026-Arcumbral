@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresar - SIA</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container" style="max-width:420px">
+  <header><h1>Sistema de Asistencia</h1><p>I.E.S. N° 11 - JUJUY</p></header>
+  <div class="form-container">
+    <form id="loginForm">
+      <h2>Ingresar</h2>
+      <div class="form-group"><label for="usuario">Usuario (DNI o código):</label><input id="usuario" required autocomplete="username"></div>
+      <div class="form-group"><label for="clave">Contraseña:</label><input type="password" id="clave" required autocomplete="current-password"></div>
+      <button type="submit">Entrar</button>
+    </form>
+    <form id="claveForm" class="hidden">
+      <h2>Elegí una nueva contraseña</h2>
+      <div class="form-group"><label for="actual">Contraseña actual:</label><input type="password" id="actual" required></div>
+      <div class="form-group"><label for="nueva">Nueva (mínimo 8 caracteres):</label><input type="password" id="nueva" minlength="8" required></div>
+      <button type="submit">Guardar y entrar</button>
+    </form>
+  </div>
+</div>
+<script src="js/db.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

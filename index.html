@@ -9,31 +9,34 @@
 <body>
 <div class="container">
   <header>
-    <h1>Sistema de Asistencia por QR</h1>
+    <h1>Sistema de Asistencia</h1>
     <p>Instituto de Educación Superior N° 11 - JUJUY</p>
+    <nav id="nav"></nav>
   </header>
 
   <img src="portada.jpg" alt="Portada" onerror="this.style.display='none'"
        style="display:block;margin:0 auto 16px;max-width:100%;height:auto;border-radius:8px">
 
   <div class="menu-grid">
-    <a class="menu-card" href="registro.html"><div class="icon">👤</div><h2>Registro de Estudiantes</h2><p>Registra estudiantes y genera su QR personal</p></a>
-    <a class="menu-card" href="asistencia.html"><div class="icon">📷</div><h2>Tomar Asistencia</h2><p>Escanea el QR (o usa reconocimiento facial)</p></a>
-    <a class="menu-card" href="historial.html"><div class="icon">📊</div><h2>Historial</h2><p>Consulta y exporta las asistencias</p></a>
-    <a class="menu-card" href="cursos.html"><div class="icon">🏫</div><h2>Cursos</h2><p>Alta, baja y modificación de cursos</p></a>
-    <a class="menu-card" href="profesores.html"><div class="icon">🧑‍🏫</div><h2>Profesores</h2><p>Alta, baja y modificación de profesores</p></a>
-    <a class="menu-card" href="materias.html"><div class="icon">📚</div><h2>Materias</h2><p>Materias, profesor y horarios</p></a>
+    <a class="menu-card" data-roles="admin" href="registro.html"><div class="icon">👤</div><h2>Alumnos</h2><p>Alta de alumnos y dispositivo WiFi</p></a>
+    <a class="menu-card" data-roles="admin profesor" href="asistencia.html"><div class="icon">📝</div><h2>Tomar Asistencia</h2><p>Asistencia automática por WiFi y marca manual</p></a>
+    <a class="menu-card" data-roles="admin profesor" href="historial.html"><div class="icon">📊</div><h2>Historial</h2><p>Consultá, exportá CSV y descargá PDF</p></a>
+    <a class="menu-card" data-roles="alumno" href="alumno.html"><div class="icon">🙋</div><h2>Mi asistencia</h2><p>WiFi y tus asistencias</p></a>
+    <a class="menu-card" data-roles="admin" href="cursos.html"><div class="icon">🏫</div><h2>Cursos</h2><p>Alta, baja y modificación</p></a>
+    <a class="menu-card" data-roles="admin" href="profesores.html"><div class="icon">🧑‍🏫</div><h2>Profesores</h2><p>Alta, baja y modificación</p></a>
+    <a class="menu-card" data-roles="admin" href="materias.html"><div class="icon">📚</div><h2>Materias</h2><p>Materias, profesor y horarios</p></a>
+    <a class="menu-card" data-roles="admin" href="ajustes.html"><div class="icon">⚙️</div><h2>Ajustes</h2><p>Red WiFi del instituto y agente</p></a>
   </div>
-
-  <div class="card" style="text-align:center">
-    <h3>🛠️ Respaldo de datos</h3>
-    <button class="btn-verde" onclick="exportarDatos()">📥 Exportar datos</button>
-    <input type="file" id="importFile" accept=".json" onchange="importarDatos(event)" style="display:none">
-    <button class="btn-gris" onclick="$('importFile').click()">📤 Importar datos</button>
-  </div>
-
-  <footer>&copy; 2026 I.E.S. N° 11 - JUJUY -</footer>
+  <footer>&copy; 2026 I.E.S. N° 11 - JUJUY</footer>
 </div>
 <script src="js/db.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const u = await iniciarPagina(['admin', 'profesor', 'alumno']);
+    document.querySelectorAll('[data-roles]').forEach(el => {
+      if (!el.dataset.roles.split(' ').includes(u.rol)) el.remove();
+    });
+  });
+</script>
 </body>
 </html>
