@@ -43,6 +43,7 @@ CREATE TABLE `asistencias` (
   `dia` date NOT NULL,
   `fecha` datetime NOT NULL,
   `metodo` enum('QR','WiFi','MANUAL') NOT NULL,
+  `estado` enum('PRESENTE','AUSENTE') NOT NULL DEFAULT 'PRESENTE',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_asis` (`codigo`,`materia_id`,`dia`),
   KEY `materia_id` (`materia_id`),

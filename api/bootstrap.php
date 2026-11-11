@@ -95,7 +95,7 @@ function materia_actual(int $cursoId): ?array {
 }
 function registrar(string $codigo, int $materiaId, string $metodo): string {
   global $pdo;
-  $st = $pdo->prepare('INSERT IGNORE INTO asistencias (codigo, materia_id, dia, fecha, metodo) VALUES (?,?,?,?,?)');
+  $st = $pdo->prepare("INSERT INTO asistencias (codigo, materia_id, dia, fecha, metodo, estado) VALUES (?,?,?,?,?, 'PRESENTE') ON DUPLICATE KEY UPDATE metodo = IF(estado = 'AUSENTE', VALUES(metodo), metodo), fecha = IF(estado = 'AUSENTE', VALUES(fecha), fecha), estado = IF(estado = 'AUSENTE', 'PRESENTE', estado)");
   $st->execute([$codigo, $materiaId, date('Y-m-d'), date('Y-m-d H:i:s'), $metodo]);
   return $st->rowCount() ? 'registrada' : 'duplicada';
 }

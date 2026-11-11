@@ -33,26 +33,41 @@ async function listar() {
   try {
     const alumnos = await api('api/asistencia.php?accion=alumnos&materia_id=' + encodeURIComponent(id));
     $('lista').innerHTML = alumnos.length ? alumnos.map(a => {
-      const presente = !!a.fecha;
+      const presente = a.estado === 'PRESENTE';
+      const ausente = a.estado === 'AUSENTE';
+      const estado = presente
+        ? '✅ Presente · ' + esc(a.metodo || 'MANUAL') + (a.fecha ? ' · ' + new Date(a.fecha.replace(' ', 'T')).toLocaleTimeString('es-AR') : '')
+        : ausente ? '❌ Inasistencia registrada' : '⏳ Sin registrar';
       return `<div class="item">
         <div><strong>${esc(a.codigo)} - ${esc(a.nombre)}</strong><br>
-        <small>${presente ? '✅ Presente · ' + esc(a.metodo) + ' · ' + new Date(a.fecha.replace(' ', 'T')).toLocaleTimeString('es-AR') : '⏳ Sin asistencia registrada'}</small></div>
-        <div>${presente ? '<span class="badge ok">Presente</span>' : `<button class="btn-verde" data-marcar="${esc(a.codigo)}">Marcar presente</button>`}</div>
+        <small>${estado}</small></div>
+        <div>${presente
+          ? '<span class="badge ok">Presente</span>'
+          : ausente
+            ? '<span class="badge err">Ausente</span> <button class="btn-verde" data-marcar="${esc(a.codigo)}">Corregir a presente</button>'
+            : `<button class="btn-verde" data-marcar="${esc(a.codigo)}">Marcar presente</button>
+               <button class="btn-rojo" data-ausente="${esc(a.codigo)}">Marcar inasistencia</button>`}</div>
       </div>`;
     }).join('') : '<p>No hay alumnos registrados en este curso.</p>';
   } catch (e) { $('lista').innerHTML = `<p>${esc(e.message)}</p>`; }
 }
 
 $('lista').addEventListener('click', async e => {
-  const b = e.target.closest('[data-marcar]');
-  if (!b) return;
+  const presente = e.target.closest('[data-marcar]');
+  const ausente = e.target.closest('[data-ausente]');
+  if (!presente && !ausente) return;
+  const b = presente || ausente;
+  const esInasistencia = !!ausente;
+  if (esInasistencia && !confirm('¿Confirmás registrar la INASISTENCIA de este alumno para la materia y fecha de hoy?')) return;
   b.disabled = true;
   try {
-    const r = await api('api/asistencia.php?accion=manual', {
+    const r = await api('api/asistencia.php?accion=' + (esInasistencia ? 'inasistencia' : 'manual'), {
       materia_id: $('cursoAsistencia').value,
-      codigo: b.dataset.marcar
+      codigo: b.dataset.marcar || b.dataset.ausente
     });
-    alert(r.estado === 'registrada' ? `Asistencia manual registrada para ${r.nombre}.` : `${r.nombre} ya tenía asistencia registrada hoy.`);
+    alert(esInasistencia
+      ? `Inasistencia registrada para ${r.nombre}.`
+      : (r.estado === 'registrada' ? `Asistencia manual registrada para ${r.nombre}.` : `${r.nombre} ya tenía un registro para hoy.`));
     await listar();
   } catch (err) {
     alert(err.message);

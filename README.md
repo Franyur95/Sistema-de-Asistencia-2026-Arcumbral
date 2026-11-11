@@ -1,152 +1,155 @@
 # Sistema de Asistencia ARCUMBRAL
 
-Sistema web de gestión y registro de asistencia para instituciones educativas. Permite administrar alumnos, cursos, profesores y materias, y registrar y consultar asistencias.
+Sistema web para administrar cursos, materias, profesores y estudiantes, registrar presentes e inasistencias y consultar o descargar informes de asistencia en PDF.
 
-## Características
+## 1. Funciones principales
 
-- Gestión de alumnos.
-- Gestión de cursos.
-- Gestión de profesores.
-- Gestión de materias.
-- Registro de asistencia mediante los métodos disponibles en el sistema.
-- Detección de conexión a la red WiFi del instituto.
-- Historial de asistencias.
-- Interfaz web adaptable.
+- Administración de cursos, profesores, materias y estudiantes.
+- Creación de usuarios de acceso para profesores y estudiantes.
+- Registro de asistencia por QR, WiFi del instituto y marcación manual.
+- Marcación manual de **presente** o **inasistencia** desde «Tomar asistencia».
+- Historial con filtros por materia, fechas y estudiante.
+- Exportación del historial a CSV.
+- Descarga de informes PDF para una materia o para el alumno que inició sesión.
+- Acceso según rol: administrador, profesor o alumno.
 
-## Tecnologías
+## 2. Requisitos
 
-- HTML5
-- CSS3
-- JavaScript
-- PHP
-- MySQL
-
-## Requisitos
-
-Para ejecutar el proyecto localmente se necesita:
-
-- Windows, Linux o un sistema compatible.
-- XAMPP.
-- Apache.
+- PHP compatible con la versión utilizada por el hosting (se recomienda PHP 7.4 o superior).
 - MySQL o MariaDB.
-- Navegador web actualizado.
-- Git (opcional, para clonar el repositorio).
+- Apache o un hosting PHP.
+- Navegador actualizado.
+- Para instalación local: XAMPP.
 
-## Instalación local con XAMPP
+## 3. Instalación nueva con XAMPP
 
-### 1. Descargar el proyecto
+1. Descomprimir la carpeta del proyecto dentro de `C:\xampp\htdocs\`.
+2. Abrir el panel de XAMPP e iniciar **Apache** y **MySQL**.
+3. Entrar en `http://localhost/phpmyadmin`.
+4. Crear una base de datos llamada `sia` (codificación recomendada: `utf8mb4`).
+5. Seleccionar `sia` e importar `sql/sia.sql`.
+6. Abrir `api/config.php` y colocar los datos de conexión locales. En una instalación habitual de XAMPP son:
 
-Clonar el repositorio:
+   ```php
+   const DB_HOST = 'localhost';
+   const DB_NAME = 'sia';
+   const DB_USER = 'root';
+   const DB_PASS = '';
+   ```
 
-```bash
-git clone https://github.com/Franyur95/Sistema-de-Asistencia-2026-Arcumbral.git
-```
+   No reemplazar las demás constantes del archivo; modificar únicamente los datos que correspondan a tu instalación.
+7. Abrir `http://localhost/Sistema-de-Asistencia-2026-Arcumbral/login.html`.
 
-También se puede descargar el proyecto desde GitHub mediante la opción **Code → Download ZIP**.
+La base de instalación incluye un usuario administrador inicial (`admin`). La contraseña inicial indicada por el proyecto es `contra123`; cambiarla al ingresar y no conservarla en producción.
 
-### 2. Colocar el proyecto en XAMPP
+## 4. Actualizar una instalación existente sin borrar datos
 
-Copiar la carpeta del proyecto dentro de:
+**No importes `sql/sia.sql` sobre una base de datos que ya contiene información.** Es el archivo único de instalación nueva e incluye instrucciones `DROP TABLE`; importarlo sobre una base en uso puede borrar tablas y datos.
 
-```text
-C:\xampp\htdocs\
-```
+El archivo `sql/sia.sql` de esta versión ya incluye la columna `estado` (`PRESENTE`/`AUSENTE`) en la tabla `asistencias`. Por eso, una instalación nueva necesita importar solamente ese archivo y no requiere migraciones adicionales.
 
-La ruta final debería ser similar a:
+Para actualizar una instalación anterior que todavía no tiene la columna `estado`:
 
-```text
-C:\xampp\htdocs\Sistema-de-Asistencia-2026-Arcumbral
-```
+1. Hacer una copia de seguridad desde phpMyAdmin: seleccionar la base → **Exportar** → SQL → **Continuar**.
+2. Subir los archivos actualizados, conservando el `api/config.php` de esa instalación.
+3. Seleccionar la base de datos existente en phpMyAdmin y abrir la pestaña **SQL**.
+4. Ejecutar esta instrucción **una sola vez**, únicamente si la columna `estado` todavía no existe:
 
-### 3. Iniciar los servicios
+   ```sql
+   ALTER TABLE asistencias
+     ADD COLUMN estado ENUM('PRESENTE','AUSENTE') NOT NULL DEFAULT 'PRESENTE' AFTER metodo;
+   ```
 
-Abrir el panel de control de XAMPP e iniciar:
+5. Comprobar que la tabla `asistencias` ahora tiene la columna `estado` y probar con datos de prueba.
 
-- Apache
-- MySQL
+Los registros anteriores quedan como `PRESENTE` automáticamente. Si la columna ya existe, no ejecutes el `ALTER TABLE` nuevamente.
 
-### 4. Crear la base de datos
+## 5. Cómo usar el sistema
 
-Abrir phpMyAdmin:
+### Administrador
 
-```text
-http://localhost/phpmyadmin
-```
+1. Iniciar sesión con la cuenta de administrador. ADMIN ....  contra123 
+2. Crear los cursos desde **Cursos** (año, división y carrera).
+3. Cargar los profesores desde **Profesores**.
+4. Crear las materias desde **Materias**, asociándolas a su curso, profesor y horarios.
+5. Cargar los alumnos desde **Alumnos**, asignándolos al curso correcto.
+6. Entregar a cada usuario sus credenciales iniciales y pedirle que cambie la contraseña.
 
-Crear una base de datos con el nombre:
+Al crear un profesor o alumno, el sistema genera su usuario con el DNI o código correspondiente. La contraseña inicial también se basa en ese identificador y el sistema solicita cambiarla.
 
-```text
-sia
-```
+### Profesor: tomar asistencia
 
-Se recomienda utilizar la codificación `utf8mb4` con una intercalación compatible, por ejemplo `utf8mb4_unicode_ci`.
+1. Entrar en **Tomar asistencia**.
+2. Elegir primero la **carrera**.
+3. Elegir la **materia**. La lista muestra los alumnos inscriptos en el curso de esa materia.
+4. Para cada alumno, elegir una de estas acciones:
+   - **Marcar presente**: registra su asistencia manual.
+   - **Marcar inasistencia**: registra que estuvo ausente en esa materia durante el día actual. El sistema pide confirmar la acción.
+5. Si el alumno ya tiene un registro para ese día y materia, se muestra el estado y no se ofrecen nuevamente los botones para evitar duplicados.
 
-### 5. Importar la base de datos
+La asistencia por WiFi o QR sigue funcionando. Si un alumno que tenía una inasistencia registrada luego marca su asistencia válida por WiFi/QR, el registro pasa a **PRESENTE**. Una marcación manual de presente también puede corregir una inasistencia previa.
 
-1. Seleccionar la base de datos `sia`.
-2. Entrar en la pestaña **Importar**.
-3. Seleccionar el archivo `sql/sia.sql` del proyecto.
-4. Presionar **Importar** o **Continuar**.
-5. Esperar el mensaje de importación correcta.
+**Importante:** la inasistencia se registra por alumno, materia y fecha. Revisá que la materia seleccionada sea la correcta antes de confirmar.
 
-**Importante:** realizar la importación en una base de datos nueva y vacía. No importar este archivo sobre una base que ya contenga información importante.
+### Historial de asistencia
 
-### 6. Configurar la conexión a MySQL
+1. Abrir **Historial**.
+2. Seleccionar una materia o «Todas las materias» si la pantalla lo permite.
+3. Elegir las fechas **Desde** y **Hasta**.
+4. Opcionalmente, escribir el código o nombre del estudiante.
+5. Presionar **Filtrar**.
+6. La tabla muestra fecha, hora, alumno, materia, estado (presente o inasistencia) y método de registro.
+7. El botón **CSV** descarga los resultados filtrados para abrirlos en una planilla.
 
-Abrir el archivo:
+### Cómo descargar el PDF de asistencia (administrador o profesor)
 
-```text
-api/config.php
-```
+1. Entrar en **Historial de Asistencia**.
+2. Seleccionar la **materia** que se desea informar.
+3. Elegir el rango de fechas en **Desde** y **Hasta**.
+4. Presionar el botón **PDF**.
+5. El navegador descargará un archivo llamado `informe-asistencia.pdf`. Si no se descarga automáticamente, revisar la carpeta **Descargas** o permitir las descargas del sitio.
 
-Configurar los datos de conexión según la instalación local:
+El PDF de la materia incluye el curso, el período, la cantidad de clases registradas y una tabla por alumno con presentes, inasistencias y porcentaje de asistencia.
 
-```php
-<?php
-const DB_HOST = 'localhost';
-const DB_NAME = 'sia';
-const DB_USER = 'root';
-const DB_PASS = '';
-const CONFIAR_PROXY = false;
-const MIN_ANTES = 10;
-```
+### Cómo descargar el PDF como alumno
 
-En una instalación típica de XAMPP, el usuario suele ser `root` y la contraseña puede estar vacía.
+1. Iniciar sesión con la cuenta de alumno.
+2. En la pantalla del alumno, seleccionar las fechas **Desde** y **Hasta**.
+3. Presionar **PDF**.
+4. Se descargará el informe personal con el resumen por materia, incluyendo presentes, inasistencias, clases registradas y porcentaje de asistencia.
 
-Si MySQL tiene una contraseña configurada, modificar `DB_PASS` con la contraseña correspondiente.
+## 6. Asistencia por WiFi
 
-Cada instalación puede tener credenciales diferentes.
+Para que el registro automático funcione:
 
-### 7. Ingresar al sistema
+- El administrador debe configurar la IP pública o los rangos autorizados de la red del instituto en **Ajustes**.
+- El estudiante debe conectarse a la red WiFi del instituto.
+- La materia debe tener horarios configurados y debe estar dentro del horario habilitado.
+- En Android, si el sistema identifica el equipo mediante MAC, puede ser necesario usar la MAC del dispositivo en vez de una MAC aleatoria, según la configuración implementada.
 
-Abrir en el navegador:
+La conexión a la red y la existencia de una clase en ese horario son condiciones distintas: estar conectado no significa que haya una materia activa en ese momento.
 
-```text
-http://localhost/Sistema-de-Asistencia-2026-Arcumbral/
-```
+## 7. Instalación o actualización en hosting
 
-Si es necesario, ingresar directamente desde:
+**Instalación nueva:** crear una base MySQL vacía desde el panel del hosting e importar únicamente `sql/sia.sql`. Ese archivo ya contiene todas las tablas y el campo `estado` para presentes e inasistencias. Luego configurar `api/config.php` con los datos de conexión del hosting.
 
-```text
-http://localhost/Sistema-de-Asistencia-2026-Arcumbral/login.html
-```
+**Instalación existente:** no importar `sql/sia.sql`, porque puede eliminar tablas y datos. Hacer una copia de seguridad y seguir la actualización puntual de la sección 4. Conservar el `api/config.php` que ya funciona en ese hosting.
 
-### 8. Administrador inicial
+Finalmente, probar el inicio de sesión, la toma de asistencia, el historial y la descarga PDF.
 
-La base de datos de instalación incluye un administrador inicial:
+## 8. Copias de seguridad y seguridad
 
-- **Usuario:** `admin`
-- **Contraseña inicial:** `contra123`
+- Exportar periódicamente la base de datos desde phpMyAdmin.
+- Guardar una copia de los archivos del sitio antes de actualizarlos.
+- Cambiar las contraseñas iniciales.
+- No publicar `api/config.php` ni compartir credenciales.
+- No subir copias de la base de datos con información personal a repositorios públicos.
+- Probar las modificaciones con datos de prueba antes de utilizarlas en clases reales.
 
-Cambiar la contraseña después del primer ingreso, si el sistema solicita hacerlo.
-
-No utilizar estas credenciales iniciales en un entorno de producción.
-
-## Estructura del proyecto
+## 9. Estructura principal
 
 ```text
 Sistema-de-Asistencia-2026-Arcumbral/
-│
 ├── agente/
 ├── api/
 ├── css/
@@ -155,46 +158,15 @@ Sistema-de-Asistencia-2026-Arcumbral/
 ├── public/
 ├── sql/
 │   └── sia.sql
-│
-├── ajustes.html
-├── alumno.html
 ├── asistencia.html
-├── cursos.html
 ├── historial.html
-├── index.html
-├── login.html
-├── materias.html
-├── profesores.html
-├── registro.html
-└── README.md
+├── alumno.html
+├── README.md
+└── ...
 ```
-
-## Instalación en un hosting
-
-Para instalar el sistema en un hosting:
-
-1. Crear una base de datos MySQL desde el panel del proveedor.
-2. Importar el archivo `sql/sia.sql` desde phpMyAdmin.
-3. Subir los archivos del proyecto al directorio público del hosting.
-4. Modificar `api/config.php` con el host, nombre de base de datos, usuario y contraseña proporcionados por el hosting.
-5. Comprobar el acceso al sistema y el funcionamiento de sus funciones.
-
-**Importante:** los datos de conexión de un hosting no son los mismos que los de XAMPP. No copiar las credenciales locales sin modificarlas.
-
-## Recomendaciones de seguridad
-
-- Cambiar la contraseña inicial del administrador.
-- No publicar contraseñas reales de MySQL.
-- No compartir copias de bases de datos que contengan información personal.
-- Realizar copias de seguridad periódicas.
-- Mantener protegidos los archivos de configuración.
 
 ## Repositorio
 
-GitHub:
-
 https://github.com/Franyur95/Sistema-de-Asistencia-2026-Arcumbral
-
-## Proyecto
 
 **Sistema de Asistencia ARCUMBRAL**

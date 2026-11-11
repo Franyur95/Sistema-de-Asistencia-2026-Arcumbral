@@ -14,11 +14,11 @@ async function cargar(auto) {
   $('redEstado').className = 'badge ' + (d.en_red ? 'ok' : 'err');
   $('claseActual').textContent = d.materia_actual || 'ninguna';
   $('macEstado').textContent = d.mac || 'no registrado (pedile al administrador que cargue tu MAC)';
-  $('resumen').innerHTML = d.resumen.length ? `<table><thead><tr><th>Materia</th><th>Presentes</th><th>Clases</th></tr></thead><tbody>` +
-    d.resumen.map(r => `<tr><td>${esc(r.materia)}</td><td>${r.presentes}</td><td>${r.clases}</td></tr>`).join('') + '</tbody></table>' : '<p>Sin materias.</p>';
+  $('resumen').innerHTML = d.resumen.length ? `<table><thead><tr><th>Materia</th><th>Presentes</th><th>Inasistencias</th><th>Clases</th></tr></thead><tbody>` +
+    d.resumen.map(r => `<tr><td>${esc(r.materia)}</td><td>${r.presentes}</td><td>${r.ausentes || 0}</td><td>${r.clases}</td></tr>`).join('') + '</tbody></table>' : '<p>Sin materias.</p>';
   $('ultimos').innerHTML = d.ultimos.length ? d.ultimos.map(u => `
     <div class="item"><div><strong>${esc(u.materia)}</strong><br>
-    <small>${new Date(u.fecha.replace(' ', 'T')).toLocaleString('es-AR')} • ${esc(u.metodo)}</small></div></div>`).join('') : '<p>Todavía no hay asistencias.</p>';
+    <small>${new Date(u.fecha.replace(' ', 'T')).toLocaleString('es-AR')} • ${u.estado === 'AUSENTE' ? 'Inasistencia' : esc(u.metodo)}</small></div></div>`).join('') : '<p>Todavía no hay asistencias.</p>';
   if (auto && d.en_red && d.materia_actual) marcar(true); // intento automático al abrir la página
 }
 

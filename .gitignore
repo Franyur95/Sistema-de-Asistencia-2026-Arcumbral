@@ -1,0 +1,19 @@
+
+# Configuración privada
+.env
+.env.*
+api/config.php
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Copias de seguridad de bases de datos
+*.bak
+*.backup
+*.sql.zip
+
+# Dependencias y archivos temporales
+node_modules/

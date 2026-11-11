@@ -32,12 +32,13 @@ if ($u['rol'] === 'alumno') {
   $pdf->Cell(0, 6, t("Período: $desde a $hasta"), 0, 1);
   $pdf->Ln(3);
   $st = $pdo->prepare('SELECT m.nombre,
-      (SELECT COUNT(*) FROM asistencias a WHERE a.materia_id = m.id AND a.codigo = ? AND a.dia BETWEEN ? AND ?) AS presentes,
+      (SELECT COUNT(*) FROM asistencias a WHERE a.materia_id = m.id AND a.codigo = ? AND a.dia BETWEEN ? AND ? AND a.estado = \'PRESENTE\') AS presentes,
+      (SELECT COUNT(*) FROM asistencias a WHERE a.materia_id = m.id AND a.codigo = ? AND a.dia BETWEEN ? AND ? AND a.estado = \'AUSENTE\') AS ausentes,
       (SELECT COUNT(DISTINCT a.dia) FROM asistencias a WHERE a.materia_id = m.id AND a.dia BETWEEN ? AND ?) AS clases
       FROM materias m WHERE m.curso_id = ? ORDER BY m.nombre');
-  $st->execute([$e['codigo'], $desde, $hasta, $desde, $hasta, $e['curso_id']]);
-  $filas = array_map(fn($r) => [$r['nombre'], $r['presentes'], $r['clases'], pct($r['presentes'], $r['clases'])], $st->fetchAll());
-  tabla($pdf, ['Materia', 'Presentes', 'Clases', '% asistencia'], [90, 30, 30, 40], $filas);
+  $st->execute([$e['codigo'], $desde, $hasta, $e['codigo'], $desde, $hasta, $desde, $hasta, $e['curso_id']]);
+  $filas = array_map(fn($r) => [$r['nombre'], $r['presentes'], $r['ausentes'], $r['clases'], pct($r['presentes'], $r['clases'])], $st->fetchAll());
+  tabla($pdf, ['Materia', 'Presentes', 'Ausentes', 'Clases', '% asistencia'], [72, 25, 25, 25, 43], $filas);
 } else {
   $st = $pdo->prepare('SELECT m.*, c.anio, c.division, c.carrera FROM materias m JOIN cursos c ON c.id = m.curso_id WHERE m.id = ?');
   $st->execute([(int)($_GET['materia_id'] ?? 0)]);
@@ -54,12 +55,13 @@ if ($u['rol'] === 'alumno') {
   $pdf->Cell(0, 6, t("Período: $desde a $hasta   |   Clases con registro: $clases"), 0, 1);
   $pdf->Ln(3);
   $st = $pdo->prepare('SELECT e.codigo, e.nombre,
-      (SELECT COUNT(*) FROM asistencias a WHERE a.materia_id = ? AND a.codigo = e.codigo AND a.dia BETWEEN ? AND ?) AS presentes
+      (SELECT COUNT(*) FROM asistencias a WHERE a.materia_id = ? AND a.codigo = e.codigo AND a.dia BETWEEN ? AND ? AND a.estado = \'PRESENTE\') AS presentes,
+      (SELECT COUNT(*) FROM asistencias a WHERE a.materia_id = ? AND a.codigo = e.codigo AND a.dia BETWEEN ? AND ? AND a.estado = \'AUSENTE\') AS ausentes
       FROM estudiantes e WHERE e.curso_id = ? ORDER BY e.nombre');
-  $st->execute([$m['id'], $desde, $hasta, $m['curso_id']]);
-  $filas = array_map(fn($r) => [$r['codigo'], $r['nombre'], $r['presentes'], $clases, pct($r['presentes'], $clases)], $st->fetchAll());
-  tabla($pdf, ['Código', 'Alumno', 'Presentes', 'Clases', '%'], [30, 80, 25, 25, 25], $filas);
+  $st->execute([$m['id'], $desde, $hasta, $m['id'], $desde, $hasta, $m['curso_id']]);
+  $filas = array_map(fn($r) => [$r['codigo'], $r['nombre'], $r['presentes'], $r['ausentes'], $clases, pct($r['presentes'], $clases)], $st->fetchAll());
+  tabla($pdf, ['Código', 'Alumno', 'Presentes', 'Ausentes', 'Clases', '%'], [25, 67, 22, 22, 22, 22], $filas);
 }
 $pdf->Ln(4); $pdf->SetFont('Arial', 'I', 8);
-$pdf->Cell(0, 5, t('Generado el ' . date('d/m/Y H:i') . '. "Clases" = días con al menos un registro de asistencia.'), 0, 1);
+$pdf->Cell(0, 5, t('Generado el ' . date('d/m/Y H:i') . '. "Clases" = días con un registro de presente o inasistencia.'), 0, 1);
 $pdf->Output('D', 'informe-asistencia.pdf');
